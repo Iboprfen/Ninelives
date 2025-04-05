@@ -29,7 +29,7 @@ public class tilemanager {
 			tile[0].image = ImageIO.read(getClass().getResourceAsStream("/tiles/grass.png"));
 			
 			tile[1] = new Tile();
-			tile[1].image = ImageIO.read(getClass().getResourceAsStream("/tiles/grass.png"));
+			tile[1].image = ImageIO.read(getClass().getResourceAsStream("/tiles/cobble.png"));
 			
 			tile[2] = new Tile();
 			tile[2].image = ImageIO.read(getClass().getResourceAsStream("/tiles/grass.png"));
@@ -46,6 +46,7 @@ public class tilemanager {
 	public void draw(Graphics2D g2) {
 		
 		g2.drawImage(tile[0].image, 0, 0, gp.tileSize, gp.tileSize,null );
+		g2.drawImage(tile[1].image, 0, 48, gp.tileSize, gp.tileSize,null );
 		
 	}
 	
