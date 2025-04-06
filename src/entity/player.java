@@ -2,6 +2,7 @@ package entity;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -20,6 +21,13 @@ public class player extends entity{
 		
 		this.gp = gp;
 		this.cont = cont;
+		
+		solidArea = new Rectangle();
+		solidArea.x = 10;
+		solidArea.y = 16;
+		solidArea.width = 28;
+		solidArea.height = 28;
+		
 		
 		setDefaultValues();
 		getPlayerImage();
@@ -85,24 +93,39 @@ public class player extends entity{
 
 			if(cont.upPressed == true) {
 				direction = "up";
-				y -= speed;
+				
 			}
 			
 			if(cont.downPressed == true) {
 				direction = "down";
-				y += speed;
+				
 			}
 			
 			if(cont.leftPressed == true) {
 				direction = "left";
-				x -= speed;
+				
 			}
 			
 			if(cont.rightPressed == true) {
 				direction = "right";
-				x += speed;
+				
 			}
 		
+			//check tile collision
+			collisionOn = false;
+			gp.cCheck.checkTile(this);
+			
+			if(collisionOn == false) {
+				
+				switch(direction) {
+				case "up":	y -= speed;	break;
+				case "down":	y += speed;	break;
+				case "left":	x -= speed;	break;
+				case "right":	x += speed;	break;
+				}
+				
+			}
+				
 			spriteCounter++;
 			if(spriteCounter > 20) {
 				if(spriteNum == 1) {
