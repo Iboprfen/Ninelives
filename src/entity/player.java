@@ -1,6 +1,5 @@
 package entity;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -16,11 +15,17 @@ public class player extends entity{
 	gamepanel gp;
 	Controls cont;
 
+	public final int screenX;
+	public final int screenY;
+	
 	
 	public player (gamepanel gp, Controls cont) {
 		
 		this.gp = gp;
 		this.cont = cont;
+		
+		screenX = gp.screenwidth/2 - (gp.tileSize/2);
+		screenY = gp.screenheight/2 - (gp.tileSize/2);
 		
 		solidArea = new Rectangle();
 		solidArea.x = 10;
@@ -34,8 +39,8 @@ public class player extends entity{
 	}
 	public void setDefaultValues() {
 		
-		x = 100;
-		y = 100;
+		worldX = gp.tileSize * 23;
+		worldY = gp.tileSize * 21;
 		speed = 3;
 		direction = "idle";
 	}
@@ -118,10 +123,10 @@ public class player extends entity{
 			if(collisionOn == false) {
 				
 				switch(direction) {
-				case "up":	y -= speed;	break;
-				case "down":	y += speed;	break;
-				case "left":	x -= speed;	break;
-				case "right":	x += speed;	break;
+				case "up":		worldY -= speed;	break;
+				case "down":	worldY += speed;	break;
+				case "left":	worldX-= speed;		break;
+				case "right":	worldX += speed;	break;
 				}
 				
 			}
@@ -220,7 +225,7 @@ public class player extends entity{
 			break;
 		
 		}
-	g2.drawImage(image, x, y, gp.tileSize , gp.tileSize , null);
+	g2.drawImage(image, screenX, screenY, gp.tileSize , gp.tileSize , null);
 	
 	}
 	
