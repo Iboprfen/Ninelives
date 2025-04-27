@@ -24,5 +24,7 @@ public class entity {
 	public Rectangle solidArea;
 	
 	public boolean collisionOn = false;
+	
+	//test test
 
 }
