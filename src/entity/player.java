@@ -1,5 +1,8 @@
 package entity;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -10,18 +13,23 @@ import javax.imageio.ImageIO;
 import main.Controls;
 import main.gamepanel;
 
+
+
 public class player extends entity{
 	
-	gamepanel gp;
+	
 	Controls cont;
+	
 
 	public final int screenX;
 	public final int screenY;
+	public int hasSword= 0;
 	
 	
 	public player (gamepanel gp, Controls cont) {
 		
-		this.gp = gp;
+		super(gp);
+		
 		this.cont = cont;
 		
 		screenX = gp.screenwidth/2 - (gp.tileSize/2);
@@ -32,48 +40,69 @@ public class player extends entity{
 		solidArea.y = 16;
 		solidArea.width = 28;
 		solidArea.height = 28;
+		solidAreadefaultX = solidArea.x;
+		solidAreadefaultY =	solidArea.y;	
 		
+		attackArea.width = 36;
+		attackArea.height = 36;
 		
 		setDefaultValues();
 		getPlayerImage();
+		getPlayerAttackImg();
 	}
 	public void setDefaultValues() {
 		
-		worldX = gp.tileSize * 23;
-		worldY = gp.tileSize * 21;
+		worldX = gp.tileSize * 24;
+		worldY = gp.tileSize * 47;
 		speed = 3;
 		direction = "idle";
+		
+		maxlife = 9;		
+		life = maxlife;
+				
+				
 	}
 	
 	public void getPlayerImage() {
 		
-		try {
-			down1 = ImageIO.read(getClass().getResourceAsStream("/player/cat_down1.png"));
-			down2 = ImageIO.read(getClass().getResourceAsStream("/player/cat_down2.png"));
-			down3 = ImageIO.read(getClass().getResourceAsStream("/player/cat_down3.png"));
-			idle = ImageIO.read(getClass().getResourceAsStream("/player/cat_idle.png"));
-			left1 = ImageIO.read(getClass().getResourceAsStream("/player/cat_left1.png"));
-			left2 = ImageIO.read(getClass().getResourceAsStream("/player/cat_left2.png"));
-			left3 = ImageIO.read(getClass().getResourceAsStream("/player/cat_left3.png"));
-			right1 = ImageIO.read(getClass().getResourceAsStream("/player/cat_right1.png"));
-			right2 = ImageIO.read(getClass().getResourceAsStream("/player/cat_right2.png"));
-			right3= ImageIO.read(getClass().getResourceAsStream("/player/cat_right3.png"));
-			up1 = ImageIO.read(getClass().getResourceAsStream("/player/cat_up1.png"));
-			up2 = ImageIO.read(getClass().getResourceAsStream("/player/cat_up2.png"));
-			up3= ImageIO.read(getClass().getResourceAsStream("/player/cat_up3.png"));
-			}
-		
-		catch(IOException e){
-			e.printStackTrace();
-			}
-		
-		
-		
+	
+			down1 = setup("/player/cat_down1",gp.tileSize, gp.tileSize);
+			down2 = setup("/player/cat_down2",gp.tileSize, gp.tileSize);
+			down3 = setup("/player/cat_down3",gp.tileSize, gp.tileSize);
+			idle = setup("/player/cat_idle",gp.tileSize, gp.tileSize);
+			left1 = setup("/player/cat_left1",gp.tileSize, gp.tileSize);
+			left2 = setup("/player/cat_left2",gp.tileSize, gp.tileSize);
+			left3 = setup("/player/cat_left3",gp.tileSize, gp.tileSize);
+			right1 = setup("/player/cat_right1",gp.tileSize, gp.tileSize);
+			right2 = setup("/player/cat_right2",gp.tileSize, gp.tileSize);
+			right3= setup("/player/cat_right3",gp.tileSize, gp.tileSize);
+			up1 = setup("/player/cat_up1",gp.tileSize, gp.tileSize);
+			up2 = setup("/player/cat_up2",gp.tileSize, gp.tileSize);
+			up3= setup("/player/cat_up3",gp.tileSize, gp.tileSize);
 	}
+	public void getPlayerAttackImg(){
+		
+		
+			attack_up = setup("/player/attack_up",gp.tileSize, gp.tileSize * 2);
+			attack_left = setup("/player/attack_left",gp.tileSize*2, gp.tileSize);
+			attack_right = setup("/player/atack_right",gp.tileSize*2, gp.tileSize);
+			attack_down = setup("/player/attac_down",gp.tileSize, gp.tileSize*2);
+			
+		
+		
+		}
+		
+	
 	
 	public void update () {
 		
-		if(cont.upPressed == false || cont.downPressed == false || cont.leftPressed == false || cont.rightPressed == false) {
+		if(cont.attacking == true) {
+			
+			attacking();
+			
+		}
+		
+		else if(cont.upPressed == false || cont.downPressed == false || cont.leftPressed == false || cont.rightPressed == false) {
 			
 			direction = "idle";
 			spriteCounter++;
@@ -120,6 +149,21 @@ public class player extends entity{
 			collisionOn = false;
 			gp.cCheck.checkTile(this);
 			
+			int objIndex = gp.cCheck.checkobj(this, true);
+			pickup(objIndex);
+			
+			
+			
+			int npcindex = gp.cCheck.checkentity(this, gp.npc);
+			interactnpc(npcindex);
+			
+			
+			int monsterindex = gp.cCheck.checkentity(this, gp.monster);
+			contactMonster(monsterindex);
+			
+			gp.eH.checkevent();
+			
+			
 			if(collisionOn == false) {
 				
 				switch(direction) {
@@ -149,8 +193,113 @@ public class player extends entity{
 			}
 		
 		}
-	}
 		
+		if(invincible == true) {
+			iframes++;
+			if(iframes > 60) {
+				invincible = false;
+				iframes = 0;
+			}
+		}
+	
+	}
+
+	public void attacking() {
+		
+		
+			spriteCounter++;
+			if(spriteCounter > 30) {
+				if(spriteNum == 1) {
+					spriteNum = 2;
+					int currentWorldX = worldX;
+					int currentWorldY = worldY;
+					int solidAreaWidth = solidArea.width;
+					int solidAreaHeight = solidArea.height;
+					
+					switch(direction) {
+					
+					case "up" : worldY -= attackArea.height; break;
+					case "down" : worldY += attackArea.height; break;
+					case "left" : worldX -= attackArea.width; break;
+					case "right" : worldX += attackArea.width; break;
+					}
+					
+					solidArea.width = attackArea.width;
+					solidArea.height = attackArea.height;
+					
+					int monsterindex = gp.cCheck.checkentity(this, gp.monster);
+					damageMonster(monsterindex);					
+					worldX = currentWorldX;
+					worldY = currentWorldY;
+					solidArea.width = solidAreaWidth;
+					solidArea.height = solidAreaHeight;
+					
+				}
+				else if (spriteNum == 2 ) {
+					
+					
+					spriteNum = 3;
+					
+			
+					
+					
+				}
+				else if (spriteNum == 3 ) {
+					spriteNum = 1;
+					
+				}			
+				spriteCounter = 0;
+				cont.attacking = false;
+		
+			}
+		}
+
+	public void pickup(int i) {
+		
+		if(i != 999) {
+			
+			String objectname = gp.obj[i].name;
+			
+			switch(objectname) {
+			case "sword" :
+				hasSword++;
+				gp.obj[i] = null;
+			 break;
+			}
+		}
+	}
+	
+	public void interactnpc(int i) {
+		
+		if(i != 999) {
+			collisionOn = true;
+			
+			gp.gamestate = gp.dialogue;
+			gp.npc[i].speak();
+			
+		}
+	}
+	public void contactMonster(int i){
+		
+		if(i != 999) {
+			if(invincible == false) {
+			life -= 1;
+			invincible = true;
+			}
+		}
+		
+	}
+	public void damageMonster(int i) { 
+		
+		if(i != 999) {
+			
+			System.out.println("lol");
+			
+		}
+		else {
+			System.out.println("miss");
+		}
+	}
 	
 	public void  draw(Graphics2D g2) {
 		
@@ -159,73 +308,81 @@ public class player extends entity{
 		switch(direction) {
 		
 		case "up":
-			if(spriteNum == 1) {
-				image = up1;
+			if( cont.attacking == false) {
+			if(spriteNum == 1) {image = up1;}
+			if(spriteNum == 2) {image = up2;}
+			if(spriteNum == 3) {image = up3;}
 			}
-			if(spriteNum == 2) {
-				image = up2;
-			}
-			if(spriteNum == 3) {
-				image = up3;
-		
+			if(cont.attacking == true) {
+				if(spriteNum == 1) {image = attack_up;}
+				if(spriteNum == 2) {image = attack_up;}
+				if(spriteNum == 3) {image = attack_up;}
 			}
 				break;
-		
 		case "down":
-			if(spriteNum == 1) {
-				image = down1;
+			if( cont.attacking == false) {
+			if(spriteNum == 1) {image = down1;}
+			if(spriteNum == 2) {image = down2;}
+			if(spriteNum == 3) {image = down3;}
 			}
-			if(spriteNum == 2) {
-				image = down2;
-			}
-			if(spriteNum == 3) {
-				image = down3;
-		
+			if(cont.attacking == true) {
+				if(spriteNum == 1) {image = attack_down;}
+				if(spriteNum == 2) {image = attack_down;}
+				if(spriteNum == 3) {image = attack_down;}
 			}
 			break;	
-		
 		case "left":
-			if(spriteNum == 1) {
-				image = left1;
+			if( cont.attacking == false) {
+			if(spriteNum == 1) {image = left1;}
+			if(spriteNum == 2) {image = left2;}
+			if(spriteNum == 3) {image = left3;}
 			}
-			if(spriteNum == 2) {
-				image = left2;
-			}
-			if(spriteNum == 3) {
-				image = left3;
-		
+			if(cont.attacking == true) {
+				if(spriteNum == 1) {image = attack_left;}
+				if(spriteNum == 2) {image = attack_left;}
+				if(spriteNum == 3) {image = attack_left;}
 			}
 			break;
-		
 		case "right":
-				if(spriteNum == 1) {
-					image = right1;
-				}
-				if(spriteNum == 2) {
-					image = right2;
-				}
-				if(spriteNum == 3) {
-					image = right3;
-			
-				}
-				break;
+			if( cont.attacking == false) {
+				if(spriteNum == 1) {image = right1;}
+				if(spriteNum == 2) {image = right2;}
+				if(spriteNum == 3) {image = right3;}
+			}
+			if(cont.attacking == true) {
+				if(spriteNum == 1) {image = attack_right;}
+				if(spriteNum == 2) {image = attack_right;}
+				if(spriteNum == 3) {image = attack_right;}
+			}
+			break;
 		case "idle":
-			if(spriteNum == 1) {
-				image = idle;
-				
+			if( cont.attacking == false) {
+			if(spriteNum == 1) {image = idle;}
+			if(spriteNum == 2) {image = idle;}
+			if(spriteNum == 3) {image = idle;}
 			}
-			if(spriteNum == 2) {
-				image = idle;
-				
-			}
-			if(spriteNum == 3) {
-				image = idle;
-				
+			if(cont.attacking == true) {
+				if(spriteNum == 1) {image = attack_down;}
+				if(spriteNum == 2) {image = attack_down;}
+				if(spriteNum == 3) {image = attack_down;}
 			}
 			break;
 		
 		}
-	g2.drawImage(image, screenX, screenY, gp.tileSize , gp.tileSize , null);
+		
+		if(invincible == true) {
+			
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+			
+		}
+		
+		
+		g2.drawImage(image, screenX, screenY,gp.tileSize,gp.tileSize,null);
+	
+	g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+	//g2.setFont(new Font("Arial",Font.PLAIN,26));
+	//g2.setColor(Color.white);
+	//g2.drawString("iframes : "+ iframes,10,400);
 	
 	}
 	

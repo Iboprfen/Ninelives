@@ -5,18 +5,30 @@ import java.awt.event.KeyListener;
 
 public class Controls implements KeyListener {
 
-	public boolean upPressed,downPressed,leftPressed,rightPressed;
+	gamepanel gp;
+	
+	public boolean upPressed,downPressed,leftPressed,rightPressed,attacking;
+
+	public Controls(gamepanel gp) {
+		this.gp = gp;
+	}
+	
 	
 	@Override
 	public void keyTyped(KeyEvent e) {
 		
 	}
-
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		
 		int code = e.getKeyCode();
 		
+		if(gp.gamestate == gp.playstate) {
+		
+		if(code == KeyEvent.VK_SPACE) {
+			attacking = true;
+		}	
 		if(code == KeyEvent.VK_W) {
 			upPressed = true;
 		}
@@ -29,14 +41,32 @@ public class Controls implements KeyListener {
 		if(code == KeyEvent.VK_D) {
 			rightPressed = true;
 		}
+	 }
 	
+		else if(gp.gamestate == gp.dialogue) {
+				
+			if(code == KeyEvent.VK_E) {
+				gp.gamestate = gp.playstate;
+			}
+			
+		}
+		
+		
+		
+		
+		
+		
+		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 
 		int code = e.getKeyCode();
-		
+
+		if(code == KeyEvent.VK_SPACE) {
+			attacking = false;
+		}
 		if(code == KeyEvent.VK_W) {
 			upPressed = false;
 		}
