@@ -9,11 +9,15 @@ public class Controls implements KeyListener {
 	
 	public boolean upPressed,downPressed,leftPressed,rightPressed,attacking;
 
+
 	public Controls(gamepanel gp) {
 		this.gp = gp;
 	}
 	
 	
+	
+
+
 	@Override
 	public void keyTyped(KeyEvent e) {
 		
@@ -26,6 +30,22 @@ public class Controls implements KeyListener {
 		
 		if(gp.gamestate == gp.playstate) {
 		
+		playstate(code);
+	 }
+	
+		else if(gp.gamestate == gp.dialogue) {
+				
+			if(code == KeyEvent.VK_E) {
+				gp.gamestate = gp.playstate;
+			}
+	
+			
+		else if(gp.gamestate == gp.gameover) {
+				gameoverState(code);
+			}	
+		}
+}
+	public void playstate(int code) {
 		if(code == KeyEvent.VK_SPACE) {
 			attacking = true;
 		}	
@@ -41,32 +61,25 @@ public class Controls implements KeyListener {
 		if(code == KeyEvent.VK_D) {
 			rightPressed = true;
 		}
-	 }
-	
-		else if(gp.gamestate == gp.dialogue) {
-				
-			if(code == KeyEvent.VK_E) {
-				gp.gamestate = gp.playstate;
-			}
+	}
+	public void gameoverState(int code){
+		
+		
+		if(code == KeyEvent.VK_E) {
 			
+				gp.restart();
+		
+			}
 		}
 		
-		
-		
-		
-		
-		
-		
-	}
+	
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 
 		int code = e.getKeyCode();
+		
 
-		if(code == KeyEvent.VK_SPACE) {
-			attacking = false;
-		}
 		if(code == KeyEvent.VK_W) {
 			upPressed = false;
 		}
@@ -81,5 +94,6 @@ public class Controls implements KeyListener {
 		}
 	
 	}
+	
 
 }

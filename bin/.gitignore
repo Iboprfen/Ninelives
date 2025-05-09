@@ -1,7 +1,5 @@
 /entity/
-/main/
-/player/
-/object/
-/tile/
-/maps/
 /monster/
+/main/
+/ai/
+/object/

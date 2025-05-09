@@ -1,8 +1,10 @@
 package main;
 
 import entity.npcoldman;
+import monster.boss;
 import monster.mob;
 import object.obj_sword;
+import entity.princess;
 
 public class assetsetter {
 	
@@ -26,6 +28,10 @@ public void setNPC() {
 		gp.npc[0].worldX = gp.tileSize*24;
 		gp.npc[0].worldY = gp.tileSize*45;
 		
+		gp.npc[1] = new princess(gp);
+		gp.npc[1].worldX = gp.tileSize*26;
+		gp.npc[1].worldY = gp.tileSize*10;
+		
 		
 	}
 public void setmonster() {
@@ -45,7 +51,26 @@ public void setmonster() {
 		gp.monster[3] = new mob(gp);
 		gp.monster[3].worldX = gp.tileSize*24;
 		gp.monster[3].worldY = gp.tileSize*35;
-	
-	
+		
+		gp.monster[4] = new mob(gp);
+		gp.monster[4].worldX = gp.tileSize*19;
+		gp.monster[4].worldY = gp.tileSize*28;
+
+		gp.monster[5] = new mob(gp);
+		gp.monster[5].worldX = gp.tileSize*20;
+		gp.monster[5].worldY = gp.tileSize*24;
+
+		gp.monster[6] = new mob(gp);
+		gp.monster[6].worldX = gp.tileSize*24;
+		gp.monster[6].worldY = gp.tileSize*27;
+
+		
+
 	}
+public void setboss() {
+	gp.boss[0] = new boss(gp);
+	gp.boss[0].worldX = gp.tileSize*20;
+	gp.boss[0].worldY = gp.tileSize*15;
+	
+}
 }

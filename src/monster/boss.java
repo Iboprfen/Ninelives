@@ -10,19 +10,18 @@ import javax.imageio.ImageIO;
 import entity.entity;
 import main.gamepanel;
 
-public class mob extends entity{
-	
+public class boss extends entity{
 	gamepanel gp;
 
 
-	public mob(gamepanel gp) {
+	public boss(gamepanel gp) {
 		super(gp);
 		this.gp = gp;
 		
 		type = 2;
-		name = "Monster";
+		name = "boss";
 		speed = 2;
-		maxlife = 4;
+		maxlife = 10;
 		life = maxlife;
 		direction = "idle"; 
 		
@@ -41,7 +40,7 @@ public class mob extends entity{
 	public void getImage()  {
 		
 		try{
-			idle = ImageIO.read(getClass().getResourceAsStream("/monster/mob.png"));
+			idle = ImageIO.read(getClass().getResourceAsStream("/boss/ritter_ohne_weiss_16x16.png"));
 			
 			}
 		catch(IOException e){
@@ -49,29 +48,10 @@ public class mob extends entity{
 			}
 	
 	}
-	public void update() {
-		super.update();
-		
-		int xdistance = Math.abs(worldX - gp.player.worldX);
-		int ydistance = Math.abs(worldY - gp.player.worldY);
-		int tileDistance = (xdistance + ydistance)/gp.tileSize;
-		
-		if(onpath == false && tileDistance < 5) {
-			
-			int i = new Random().nextInt(100)+1;
-			if(i >50) {
-				
-				onpath = true;
-			}
-			
-		}
-	}
 	public void setAction(){
+		actionLockcounter++;
 
-
-	actionLockcounter++;
-
-		    if(actionLockcounter == 120)
+         if(actionLockcounter == 120)
          {
              Random random = new Random();
              int i = random.nextInt(100) + 1;  // pick up  a number from 1 to 100
@@ -93,8 +73,7 @@ public class mob extends entity{
              }
              actionLockcounter = 0; // reset}
          }
-   
-}
+	}	
   
 	public void damagereact() {
 		
@@ -123,4 +102,5 @@ public class mob extends entity{
           g2.drawImage(idle, screenX, screenY,gp.tileSize,gp.tileSize,null);
       } 
 	}
+
 }

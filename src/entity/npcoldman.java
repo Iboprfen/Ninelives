@@ -2,9 +2,7 @@ package entity;
 
 import java.awt.Graphics2D;
 
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 
 import main.gamepanel;
 
@@ -22,16 +20,8 @@ public class npcoldman extends entity{
 	}
 	public void getoldmanImage() {
 		
-		try {
-			down1 = ImageIO.read(getClass().getResourceAsStream("/oldman/alter_mann_mit_stock.png"));
+			down1 = setup("/oldman/alter_mann_mit_stock",gp.tileSize, gp.tileSize);
 			
-			}
-		
-		catch(IOException e){
-			e.printStackTrace();
-			}
-
-	
 		}
 
 	public void setdialogue() { 
@@ -50,7 +40,7 @@ public class npcoldman extends entity{
          worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
          worldY - gp.tileSize < gp.player.worldY + gp.player.screenY)
       {
-          g2.drawImage(down1, screenX, screenY,gp.tileSize,gp.tileSize,null);
+          g2.drawImage(down1, screenX, screenY,null);
       } 
 	}
 

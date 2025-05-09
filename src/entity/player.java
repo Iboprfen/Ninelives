@@ -1,14 +1,10 @@
 package entity;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 
 import main.Controls;
 import main.gamepanel;
@@ -23,7 +19,7 @@ public class player extends entity{
 
 	public final int screenX;
 	public final int screenY;
-	public int hasSword= 0;
+	int hasSword = 0;
 	
 	
 	public player (gamepanel gp, Controls cont) {
@@ -66,7 +62,7 @@ public class player extends entity{
 	public void getPlayerImage() {
 		
 	
-			down1 = setup("/player/cat_down1",gp.tileSize, gp.tileSize);
+			down1 = setup("/player/cat_down1",48, 48);
 			down2 = setup("/player/cat_down2",gp.tileSize, gp.tileSize);
 			down3 = setup("/player/cat_down3",gp.tileSize, gp.tileSize);
 			idle = setup("/player/cat_idle",gp.tileSize, gp.tileSize);
@@ -98,28 +94,18 @@ public class player extends entity{
 		
 		if(cont.attacking == true) {
 			
-			attacking();
-			
+			if(hasSword == 1) {
+					attacking();
+			}
+			else {
+				cont.attacking = false;
+			}
 		}
 		
 		else if(cont.upPressed == false || cont.downPressed == false || cont.leftPressed == false || cont.rightPressed == false) {
 			
-			direction = "idle";
-			spriteCounter++;
-			if(spriteCounter > 20) {
-				if(spriteNum == 1) {
-					spriteNum = 2;
-				}
-				else if (spriteNum == 2 ) {
-					spriteNum = 3;
-					
-				}
-				else if (spriteNum == 3 ) {
-					spriteNum = 1;
-					
-				}			
-				spriteCounter = 0;
-		}
+			direction = "down";
+		
 	}
 		
 		
@@ -161,6 +147,10 @@ public class player extends entity{
 			int monsterindex = gp.cCheck.checkentity(this, gp.monster);
 			contactMonster(monsterindex);
 			
+			int bossindex = gp.cCheck.checkentity(this, gp.boss);
+			contactBoss(bossindex);
+			
+			
 			gp.eH.checkevent();
 			
 			
@@ -173,10 +163,9 @@ public class player extends entity{
 				case "right":	worldX += speed;	break;
 				}
 				
-			}
-				
+			}	
 			spriteCounter++;
-			if(spriteCounter > 20) {
+			if(spriteCounter > 7) {
 				if(spriteNum == 1) {
 					spriteNum = 2;
 				}
@@ -189,10 +178,10 @@ public class player extends entity{
 					
 				}			
 				spriteCounter = 0;
-		
-			}
-		
 		}
+	}
+		
+
 		
 		if(invincible == true) {
 			iframes++;
@@ -202,15 +191,22 @@ public class player extends entity{
 			}
 		}
 	
+		if(life <= 0) { 
+			gp.gamestate = gp.gameover;
+			System.out.println("gamestate: " + gp.gamestate);
+		}
 	}
 
 	public void attacking() {
 		
 		
 			spriteCounter++;
-			if(spriteCounter > 30) {
-				if(spriteNum == 1) {
-					spriteNum = 2;
+			
+			if(spriteCounter <=5) {
+				
+				spriteNum = 1;
+			}
+				if(spriteCounter > 5 &&spriteCounter <=25) {
 					int currentWorldX = worldX;
 					int currentWorldY = worldY;
 					int solidAreaWidth = solidArea.width;
@@ -227,31 +223,31 @@ public class player extends entity{
 					solidArea.width = attackArea.width;
 					solidArea.height = attackArea.height;
 					
+					int bossindex = gp.cCheck.checkentity(this, gp.boss);
 					int monsterindex = gp.cCheck.checkentity(this, gp.monster);
-					damageMonster(monsterindex);					
+					damageMonster(monsterindex);
+					damageBoss(bossindex);
 					worldX = currentWorldX;
 					worldY = currentWorldY;
 					solidArea.width = solidAreaWidth;
 					solidArea.height = solidAreaHeight;
 					
+					
+					spriteNum = 2;
 				}
-				else if (spriteNum == 2 ) {
+				 if (spriteCounter >25 && spriteCounter <=35 ) {
 					
 					
 					spriteNum = 3;
 					
-			
-					
-					
+				
 				}
-				else if (spriteNum == 3 ) {
+				if (spriteCounter > 35) {
 					spriteNum = 1;
-					
+					spriteCounter = 0;
+					cont.attacking = false;
 				}			
-				spriteCounter = 0;
-				cont.attacking = false;
-		
-			}
+
 		}
 
 	public void pickup(int i) {
@@ -285,6 +281,18 @@ public class player extends entity{
 			if(invincible == false) {
 			life -= 1;
 			invincible = true;
+			gp.monster[i].damagereact();
+			}
+		}
+		
+	}
+public void contactBoss(int i){
+		
+		if(i != 999) {
+			if(invincible == false) {
+			life -= 1;
+			invincible = true;
+			gp.boss[i].damagereact();
 			}
 		}
 		
@@ -293,17 +301,39 @@ public class player extends entity{
 		
 		if(i != 999) {
 			
-			System.out.println("lol");
+			if(gp.monster[i].invincible == false) {
+				
+				gp.monster[i].life -= 1;
+				gp.monster[i].invincible = true;
 			
+			}
+			if(gp.monster[i].life <= 0) { 
+				gp.monster[i] = null;
+			}
 		}
-		else {
-			System.out.println("miss");
+	}
+public void damageBoss(int i) { 
+		
+		if(i != 999) {
+			
+			if(gp.boss[i].invincible == false) {
+				
+				gp.boss[i].life -= 1;
+				gp.boss[i].invincible = true;
+			
+			}
+			if(gp.boss[i].life <= 0) { 
+				gp.boss[i] = null;
+			}
 		}
 	}
 	
 	public void  draw(Graphics2D g2) {
 		
 		BufferedImage image = null;
+		
+		int tempscreenX = screenX;
+		int tempscreenY = screenY;
 		
 		switch(direction) {
 		
@@ -314,6 +344,7 @@ public class player extends entity{
 			if(spriteNum == 3) {image = up3;}
 			}
 			if(cont.attacking == true) {
+				tempscreenY = screenY - gp.tileSize;
 				if(spriteNum == 1) {image = attack_up;}
 				if(spriteNum == 2) {image = attack_up;}
 				if(spriteNum == 3) {image = attack_up;}
@@ -338,6 +369,7 @@ public class player extends entity{
 			if(spriteNum == 3) {image = left3;}
 			}
 			if(cont.attacking == true) {
+				tempscreenX = screenX - gp.tileSize;
 				if(spriteNum == 1) {image = attack_left;}
 				if(spriteNum == 2) {image = attack_left;}
 				if(spriteNum == 3) {image = attack_left;}
@@ -355,19 +387,6 @@ public class player extends entity{
 				if(spriteNum == 3) {image = attack_right;}
 			}
 			break;
-		case "idle":
-			if( cont.attacking == false) {
-			if(spriteNum == 1) {image = idle;}
-			if(spriteNum == 2) {image = idle;}
-			if(spriteNum == 3) {image = idle;}
-			}
-			if(cont.attacking == true) {
-				if(spriteNum == 1) {image = attack_down;}
-				if(spriteNum == 2) {image = attack_down;}
-				if(spriteNum == 3) {image = attack_down;}
-			}
-			break;
-		
 		}
 		
 		if(invincible == true) {
@@ -377,7 +396,7 @@ public class player extends entity{
 		}
 		
 		
-		g2.drawImage(image, screenX, screenY,gp.tileSize,gp.tileSize,null);
+		g2.drawImage(image, tempscreenX, tempscreenY,null);
 	
 	g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 	//g2.setFont(new Font("Arial",Font.PLAIN,26));
